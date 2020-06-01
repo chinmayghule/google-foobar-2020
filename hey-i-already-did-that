@@ -1,0 +1,183 @@
+Hey, I Already Did That!
+========================
+
+Commander Lambda uses an automated algorithm to assign minions randomly to tasks, in order to keep her minions on their toes. But you've noticed a flaw in the algorithm - it eventually loops back on itself, so that instead of assigning new minions as it iterates, it gets stuck in a cycle of values so that the same minions end up doing the same tasks over and over again. You think proving this to Commander Lambda will help you make a case for your next promotion. 
+
+You have worked out that the algorithm has the following process: 
+
+1) Start with a random minion ID n, which is a nonnegative integer of length k in base b
+2) Define x and y as integers of length k.  x has the digits of n in descending order, and y has the digits of n in ascending order
+3) Define z = x - y.  Add leading zeros to z to maintain length k if necessary
+4) Assign n = z to get the next minion ID, and go back to step 2
+
+For example, given minion ID n = 1211, k = 4, b = 10, then x = 2111, y = 1112 and z = 2111 - 1112 = 0999. Then the next minion ID will be n = 0999 and the algorithm iterates again: x = 9990, y = 0999 and z = 9990 - 0999 = 8991, and so on.
+
+Depending on the values of n, k (derived from n), and b, at some point the algorithm reaches a cycle, such as by reaching a constant value. For example, starting with n = 210022, k = 6, b = 3, the algorithm will reach the cycle of values [210111, 122221, 102212] and it will stay in this cycle no matter how many times it continues iterating. Starting with n = 1211, the routine will reach the integer 6174, and since 7641 - 1467 is 6174, it will stay as that value no matter how many times it iterates.
+
+Given a minion ID as a string n representing a nonnegative integer of length k in base b, where 2 <= k <= 9 and 2 <= b <= 10, write a function solution(n, b) which returns the length of the ending cycle of the algorithm above starting with n. For instance, in the example above, solution(210022, 3) would return 3, since iterating on 102212 would return to 210111 when done in base 3. If the algorithm reaches a constant, such as 0, then the length is 1.
+
+Languages
+=========
+
+To provide a Java solution, edit Solution.java
+To provide a Python solution, edit solution.py
+
+Test cases
+==========
+Your code should pass the following test cases.
+Note that it may also be run against hidden test cases not shown here.
+
+-- Java cases --
+Input:
+Solution.solution('210022', 3)
+Output:
+    3
+
+Input:
+Solution.solution('1211', 10)
+Output:
+    1
+
+-- Python cases --
+Input:
+solution.solution('1211', 10)
+Output:
+    1
+
+Input:
+solution.solution('210022', 3)
+Output:
+    3
+
+Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
+
+--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------
+def solution(n, b):
+    
+    id_list = []
+    id_found = False    # checks if similar id is found in list.
+    
+    while not id_found:
+        
+        # check if n exist before in id_list.
+        if(n in id_list):
+            
+            # change id_found.
+            id_found = True
+
+            # get index of previous n.
+            id_index =id_list.index(n)
+            
+            # get length of cycle.
+            len_list = id_list.__len__()
+            len_cycle = len_list - id_index
+            
+            # return length of cycle.
+            return len_cycle
+            
+        else:
+            
+            # add n to list.
+            id_list.append(n)
+            
+            # create new n.
+            n = new_id_calculator(n, b)
+        
+    
+
+def append_string(string, char):
+    # appends character to string.
+    # input = string.
+    # output = string.
+    
+    str_list = []
+    
+    str_list.extend(string)
+    str_list.append(char)
+    
+    return_string = ""
+    
+    for element in str_list:
+        return_string += element
+        
+    return return_string
+    
+
+def bto10(num, base):
+    # converts num of base b to num of base 10.
+    # input = string.
+    # output = string.
+    
+    num_base_b = 0
+    
+    num_str_length = num.__len__()
+    reverse_num = num[ :: -1]    # reversing the string.
+    
+    i = 0
+    while i < num_str_length:
+        num_base_b += int(reverse_num[i]) * (int(base) ** i)
+        i += 1
+    
+    return str(num_base_b)
+    
+
+def _10tob(num, base):
+    # converts num of base 10 to num of base b.
+    # input = string.
+    # output = string.
+    
+    quotient = -1
+    remainder = 0
+    int_num = int(num)
+    int_base = int(base)
+    
+    
+    quotient_str = ""
+    
+    while quotient != 0:
+        quotient = int(int_num / int_base)
+        remainder = int_num % int_base
+        
+        quotient_str = append_string(str(quotient_str), str(remainder))
+        int_num = quotient
+        
+    num_base_b = quotient_str[ :: -1]
+    
+    return num_base_b
+    
+    
+def des_n(num):
+    # converts num into descending ordered num.
+    # input = string.
+    # output = string.
+    
+    new_des_num = ''.join(sorted(num))
+    new_des_num = new_des_num[ :: -1]
+    return new_des_num
+    
+    
+def asc_n(num):
+    # converts num into ascending ordered num.
+    # input = string.
+    # output = string.
+
+    new_asc_num = ''.join(sorted(num))
+    return new_asc_num
+
+
+def new_id_calculator(old_num, base):
+    # calculates new num from old num.
+    # input = string.
+    # output = string.
+    
+    des_num = des_n(old_num)
+    asc_num = asc_n(old_num)
+    
+    des10 = int(bto10(des_num, base))
+    asc10 = int(bto10(asc_num, base))
+    
+    diff_10 = des10 - asc10
+    diff = _10tob(diff_10, base)
+    
+    return diff
